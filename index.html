@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEA Construction Monitoring Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- เพิ่ม Library สำหรับ Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --pea-purple: #7B2CBF;
+            --pea-purple-dark: #5A189A;
+            --pea-orange: #FF8500;
+            --pea-bg: #F8F9FA;
+        }
+
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: var(--pea-bg); 
+            color: #333;
+        }
+
+        .pea-gradient {
+            background: linear-gradient(135deg, var(--pea-purple) 0%, var(--pea-purple-dark) 100%);
+        }
+
+        .tab-active { 
+            border-bottom: 4px solid var(--pea-orange); 
+            color: var(--pea-purple); 
+            font-weight: 700; 
+            background-color: rgba(123, 44, 191, 0.05);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--pea-purple); }
+    </style>
+</head>
+<body class="p-2 md:p-6">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <header class="pea-gradient mb-6 p-6 rounded-2xl shadow-lg text-white flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-white p-2 rounded-lg shadow-inner">
+                    <div class="w-12 h-12 flex items-center justify-center font-bold text-2xl" style="color: var(--pea-purple);">PEA</div>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white">ระบบติดตามสถานะงานก่อสร้างงานปรับปรุงระบบจำหน่ายแรงต่ำ</h1>
+                    <p class="text-purple-100 opacity-90 text-sm md:text-base">การไฟฟ้าส่วนภูมิภาค | Monitoring Dashboard</p>
+                </div>
+            </div>
+            <div class="text-right border-l border-white/20 pl-4 hidden md:block text-white">
+                <div id="lastUpdate" class="text-xs italic opacity-80 text-white">กำลังโหลด...</div>
+                <div class="text-sm font-semibold mt-1 text-white">Sheet ID: ...gwE-77c</div>
+                <button onclick="loadDashboardData()" class="mt-2 text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition border border-white/30 text-white">
+                    🔄 รีเฟรชข้อมูลใหม่
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap bg-white rounded-xl shadow-sm mb-6 sticky top-2 z-10 p-1 gap-1 border">
+            <button onclick="switchTab('OVERVIEW')" id="btn-OVERVIEW" class="flex-1 min-w-[120px] py-3 text-center rounded-lg hover:bg-gray-50 transition text-gray-500">
+                <span class="block text-xl font-black uppercase">สรุปภาพรวม</span>
+                <span class="block text-[11px] font-bold text-gray-500">HK + IQ + JL</span>
+                <span class="block text-[11px] font-bold text-blue-600 mt-1">เปรียบเทียบโครงการ</span>
+            </button>
+            <button onclick="switchTab('HK')" id="btn-HK" class="flex-1 min-w-[120px] py-3 text-center rounded-lg hover:bg-gray-50 transition tab-active">
+                <span class="block text-xl font-black uppercase">HK</span>
+                <span class="block text-[11px] font-bold text-gray-500">2567</span>
+                <span class="block text-[11px] font-bold text-orange-600 mt-1">เป้าหมาย: มี.ค. 69</span>
+            </button>
+            <button onclick="switchTab('IQ')" id="btn-IQ" class="flex-1 min-w-[120px] py-3 text-center rounded-lg hover:bg-gray-50 transition text-gray-500 border-x border-gray-100">
+                <span class="block text-xl font-black uppercase">IQ</span>
+                <span class="block text-[11px] font-bold text-gray-500">2568</span>
+                <span class="block text-[11px] font-bold text-orange-600 mt-1">เป้าหมาย: ธ.ค. 69</span>
+            </button>
+            <button onclick="switchTab('JL')" id="btn-JL" class="flex-1 min-w-[120px] py-3 text-center rounded-lg hover:bg-gray-50 transition text-gray-500">
+                <span class="block text-xl font-black uppercase">JL</span>
+                <span class="block text-[11px] font-bold text-gray-500">2569</span>
+                <span class="block text-[11px] font-bold text-orange-600 mt-1">เป้าหมาย: ธ.ค. 70</span>
+            </button>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div id="standardStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm card-hover border-b-4 border-gray-300">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">งานที่ตรงเงื่อนไข</p>
+                <div class="flex items-baseline gap-2">
+                    <span id="statTotal" class="text-3xl font-black text-gray-700">0</span>
+                    <span class="text-xs text-gray-400">รายการ</span>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm card-hover border-b-4 border-green-500">
+                <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">เสร็จสิ้น (F4/E2)</p>
+                <div class="flex items-baseline gap-2">
+                    <span id="statCompleted" class="text-3xl font-black text-green-600">0</span>
+                    <span class="text-xs text-gray-400">รายการ</span>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm card-hover border-b-4 border-orange-500">
+                <p class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-2">ดำเนินการอยู่</p>
+                <div class="flex items-baseline gap-2">
+                    <span id="statOngoing" class="text-3xl font-black text-orange-600">0</span>
+                    <span class="text-xs text-gray-400">รายการ</span>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm card-hover border-b-4 border-purple-600">
+                <p class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-2">ความสำเร็จรวม</p>
+                <div class="flex items-baseline gap-2">
+                    <span id="statPercent" class="text-3xl font-black text-purple-600">0.00%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main View Container -->
+        <div id="mainView" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-8 bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+                <div class="p-6 border-b flex flex-col md:flex-row justify-between items-center gap-4">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-orange-500 rounded-full"></span>
+                        โครงการ <span id="tabLabel" class="text-purple-700 uppercase">HK</span>
+                    </h2>
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <div class="flex items-center gap-2 bg-gray-50 border rounded-xl px-2">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase pl-1">การไฟฟ้า:</span>
+                            <select id="aojFilter" onchange="renderDashboard()" class="py-2 pr-2 text-sm bg-transparent font-bold text-purple-700 outline-none cursor-pointer max-w-[150px]">
+                                <option value="">กำลังโหลด...</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2 bg-gray-50 border rounded-xl px-2">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase pl-1">สถานะ:</span>
+                            <select id="statusFilter" onchange="renderDashboard()" class="py-2 pr-2 text-sm bg-transparent font-bold text-purple-700 outline-none cursor-pointer">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="done">เสร็จสิ้น</option>
+                                <option value="ongoing">ดำเนินการอยู่</option>
+                            </select>
+                        </div>
+                        <div class="relative flex-1 md:w-40">
+                            <input type="text" id="searchInput" placeholder="ค้นหา..." class="w-full pl-10 pr-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-purple-400 outline-none">
+                            <svg class="w-5 h-5 absolute left-3 top-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <!-- ปุ่ม Export Excel -->
+                        <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto min-h-[400px]">
+                    <table id="dataTable" class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-500 text-[11px] uppercase font-bold tracking-widest border-b">
+                                <th class="px-6 py-4">WBS</th>
+                                <th class="px-6 py-4">ชื่องาน</th>
+                                <th class="px-6 py-4">สถานะงาน</th>
+                                <th class="px-6 py-4 text-center">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-gray-50 text-xs"></tbody>
+                    </table>
+                    <div id="loadingOverlay" class="flex flex-col items-center justify-center p-20 text-gray-400">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mb-4"></div>
+                        <p id="loadingText">กำลังเชื่อมต่อข้อมูล...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10a8 8 0 018-8v8h8a8 8 11-16 0z"></path><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path></svg>
+                        สัดส่วนสถานะ
+                    </h2>
+                    <div class="relative h-[250px]">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+                <div id="wbsInfoContainer" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        ข้อมูลแผนงานรายกลุ่ม
+                    </h2>
+                    <div id="wbsInfo" class="space-y-3 text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Container -->
+        <div id="overviewView" class="hidden space-y-6">
+            <!-- (Content remains same as before) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div id="ovCard-HK" class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-purple-500">
+                    <h3 class="text-lg font-black text-purple-700">ปี 2567 (HK)</h3>
+                    <div class="mt-4 flex justify-between items-end">
+                        <div><p class="text-[10px] text-gray-400 uppercase font-bold">ความสำเร็จ</p><p class="text-3xl font-black text-gray-800" id="ovPerc-HK">0.00%</p></div>
+                        <p class="text-xs text-gray-500" id="ovRatio-HK">0 / 0</p>
+                    </div>
+                    <div class="w-full bg-gray-100 h-2 rounded-full mt-3 overflow-hidden"><div id="ovBar-HK" class="bg-purple-500 h-full transition-all duration-1000" style="width: 0%"></div></div>
+                </div>
+                <div id="ovCard-IQ" class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-blue-500">
+                    <h3 class="text-lg font-black text-blue-700">ปี 2568 (IQ)</h3>
+                    <div class="mt-4 flex justify-between items-end">
+                        <div><p class="text-[10px] text-gray-400 uppercase font-bold">ความสำเร็จ</p><p class="text-3xl font-black text-gray-800" id="ovPerc-IQ">0.00%</p></div>
+                        <p class="text-xs text-gray-500" id="ovRatio-IQ">0 / 0</p>
+                    </div>
+                    <div class="w-full bg-gray-100 h-2 rounded-full mt-3 overflow-hidden"><div id="ovBar-IQ" class="bg-blue-500 h-full transition-all duration-1000" style="width: 0%"></div></div>
+                </div>
+                <div id="ovCard-JL" class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-orange-500">
+                    <h3 class="text-lg font-black text-orange-700">ปี 2569 (JL)</h3>
+                    <div class="mt-4 flex justify-between items-end">
+                        <div><p class="text-[10px] text-gray-400 uppercase font-bold">ความสำเร็จ</p><p class="text-3xl font-black text-gray-800" id="ovPerc-JL">0.00%</p></div>
+                        <p class="text-xs text-gray-500" id="ovRatio-JL">0 / 0</p>
+                    </div>
+                    <div class="w-full bg-gray-100 h-2 rounded-full mt-3 overflow-hidden"><div id="ovBar-JL" class="bg-orange-500 h-full transition-all duration-1000" style="width: 0%"></div></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2"><span class="w-2 h-6 bg-blue-500 rounded-full"></span>เปรียบเทียบผลงานสะสมรายปี</h3>
+                    <div class="h-[300px]"><canvas id="ovComparisonChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2"><span class="w-2 h-6 bg-green-500 rounded-full"></span>สรุปสถานะแยกตามการไฟฟ้า</h3>
+                    <div class="overflow-y-auto max-h-[300px] pr-2">
+                        <table class="w-full text-xs">
+                            <thead class="sticky top-0 bg-white shadow-sm"><tr class="text-left border-b text-gray-400 font-bold uppercase"><th class="py-2">หน่วยงาน</th><th class="py-2">งานทั้งหมด</th><th class="py-2">เสร็จสิ้น</th><th class="py-2 text-right">ความคืบหน้า</th></tr></thead>
+                            <tbody id="ovAojRanking" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '177jXMlSiBORg0BupwCuMZ7dxQ3zi-HtLfQ4RgwE-77c';
+        const TAB_GIDS = { 'HK': '814993712', 'IQ': '0', 'JL': '1579558301' };
+        
+        const WBS_CONFIG = {
+            'HK': { lv: '5', target: 'มี.ค. 69', desc: 'งานปี 2567' },
+            'IQ': { lv: '6', target: 'ธ.ค. 69', desc: 'งานปี 2568' },
+            'JL': { lv: '6', target: 'ธ.ค. 70', desc: 'งานปี 2569' }
+        };
+
+        let currentTab = 'HK';
+        let allData = []; 
+        let globalData = { 'HK': [], 'IQ': [], 'JL': [] }; 
+        let aojList = []; 
+        let filteredDataForExport = []; // ตัวแปรเก็บข้อมูลที่กรองแล้วเพื่อใช้ Export
+        let chartInstance = null;
+        let ovChartInstance = null;
+
+        function splitCsvLine(line) {
+            const result = [];
+            let current = "";
+            let inQuotes = false;
+            for (let char of line) {
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ""; }
+                else current += char;
+            }
+            result.push(current.trim());
+            return result.map(val => val.replace(/^"|"$/g, '').trim());
+        }
+
+        async function fetchAOJData() {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=AOJ`;
+            try {
+                const response = await fetch(url);
+                const csvData = await response.text();
+                const lines = csvData.split(/\r?\n/);
+                const list = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const cells = splitCsvLine(lines[i]);
+                    const code = cells[1] ? cells[1].trim() : "";
+                    const name = cells[2] ? cells[2].trim() : "";
+                    if (code && name) list.push({ code, name });
+                }
+                return list;
+            } catch (e) { return []; }
+        }
+
+        async function fetchData(tabName) {
+            const gid = TAB_GIDS[tabName];
+            const cacheBuster = new Date().getTime();
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}&t=${cacheBuster}`;
+            try {
+                const response = await fetch(url);
+                const csvData = await response.text();
+                return parseCSV(csvData, tabName);
+            } catch (error) { return []; }
+        }
+
+        function parseCSV(csv, tabName) {
+            const lines = csv.split(/\r?\n/);
+            if (lines.length === 0) return [];
+            const targetLv = WBS_CONFIG[tabName].lv;
+            const result = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const cells = splitCsvLine(lines[i]);
+                const wbs = (cells[0] || '').trim(); 
+                const description = (cells[1] || '').trim(); 
+                const constructionDetails = (cells[2] || '').trim(); 
+                const lvValue = (cells[3] || '').toString().trim(); 
+                
+                if (lvValue !== targetLv) continue;
+                
+                const lastTwo = constructionDetails.slice(-2).toUpperCase();
+                const isDone = (lastTwo === 'F4' || lastTwo === 'E2');
+                const peaCodeFromWBS = wbs.length >= 10 ? wbs.substring(7, 10) : "";
+                
+                let jobStatusDisplay = constructionDetails.length >= 6 ? 
+                    constructionDetails.substring(0, 4) + " " + constructionDetails.slice(-2) : constructionDetails;
+                
+                result.push({
+                    wbs: wbs,
+                    peaCode: peaCodeFromWBS,
+                    jobName: description, 
+                    jobStatus: jobStatusDisplay,
+                    rawStatus: constructionDetails,
+                    isCompleted: isDone
+                });
+            }
+            return result;
+        }
+
+        async function loadDashboardData() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            if (aojList.length === 0) {
+                aojList = await fetchAOJData();
+                populateAojFilter();
+            }
+            if (currentTab === 'OVERVIEW') {
+                const results = await Promise.all([fetchData('HK'), fetchData('IQ'), fetchData('JL')]);
+                globalData['HK'] = results[0]; globalData['IQ'] = results[1]; globalData['JL'] = results[2];
+            } else {
+                allData = await fetchData(currentTab);
+            }
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('lastUpdate').innerText = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+            if (currentTab === 'OVERVIEW') renderOverview(); else renderDashboard();
+        }
+
+        function populateAojFilter() {
+            const aojFilter = document.getElementById('aojFilter');
+            aojFilter.innerHTML = '<option value="">ทั้งหมด</option>' + 
+                aojList.map(item => `<option value="${item.code}">${item.name}</option>`).join('');
+        }
+
+        function switchTab(tab) {
+            if (currentTab === tab) return;
+            currentTab = tab;
+            document.querySelectorAll('button[id^="btn-"]').forEach(btn => {
+                btn.classList.remove('tab-active'); btn.classList.add('text-gray-500');
+            });
+            document.getElementById(`btn-${tab}`).classList.add('tab-active');
+            document.getElementById(`btn-${tab}`).classList.remove('text-gray-500');
+
+            if (tab === 'OVERVIEW') {
+                document.getElementById('mainView').classList.add('hidden');
+                document.getElementById('standardStats').classList.add('hidden');
+                document.getElementById('overviewView').classList.remove('hidden');
+            } else {
+                document.getElementById('mainView').classList.remove('hidden');
+                document.getElementById('standardStats').classList.remove('hidden');
+                document.getElementById('overviewView').classList.add('hidden');
+                document.getElementById('tabLabel').innerText = tab;
+            }
+            loadDashboardData();
+        }
+
+        function renderDashboard() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const aojFilterValue = document.getElementById('aojFilter').value.trim(); 
+            const statusFilterValue = document.getElementById('statusFilter').value;
+            
+            filteredDataForExport = allData.filter(item => {
+                const matchesSearch = item.wbs.toLowerCase().includes(searchTerm) || 
+                                    item.jobName.toLowerCase().includes(searchTerm) ||
+                                    item.rawStatus.toLowerCase().includes(searchTerm);
+                const matchesAoj = aojFilterValue === '' || item.peaCode === aojFilterValue;
+                const matchesStatus = statusFilterValue === 'all' || 
+                                   (statusFilterValue === 'done' ? item.isCompleted : !item.isCompleted);
+                return matchesSearch && matchesAoj && matchesStatus;
+            });
+
+            const total = filteredDataForExport.length;
+            const completedCount = filteredDataForExport.filter(item => item.isCompleted).length;
+            const ongoingCount = total - completedCount;
+            
+            document.getElementById('statTotal').innerText = total.toLocaleString();
+            document.getElementById('statCompleted').innerText = completedCount.toLocaleString();
+            document.getElementById('statOngoing').innerText = ongoingCount.toLocaleString();
+            document.getElementById('statPercent').innerText = (total > 0 ? (completedCount / total * 100).toFixed(2) : "0.00") + '%';
+
+            document.getElementById('tableBody').innerHTML = filteredDataForExport.length === 0 ? 
+                `<tr><td colspan="4" class="p-10 text-center text-gray-400 italic">ไม่พบข้อมูล</td></tr>` :
+                filteredDataForExport.map(item => `
+                    <tr class="hover:bg-purple-50/30 transition border-b border-gray-50">
+                        <td class="px-6 py-4 font-bold text-gray-700">${item.wbs}</td>
+                        <td class="px-6 py-4 font-medium text-gray-800">${item.jobName}</td>
+                        <td class="px-6 py-4 font-mono text-gray-600">${item.jobStatus}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="inline-block min-w-[90px] px-2 py-1 rounded-lg text-[10px] font-black border uppercase ${item.isCompleted ? 'bg-green-100 text-green-700 border-green-300' : 'bg-orange-50 text-orange-700 border-orange-200'}">
+                                ${item.isCompleted ? 'เสร็จสิ้น' : 'ดำเนินการ'}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+
+            updateChart(completedCount, ongoingCount);
+            
+            const config = WBS_CONFIG[currentTab];
+            document.getElementById('wbsInfo').innerHTML = `<div class="space-y-4"><div class="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-100"><span class="text-xs font-bold text-purple-700 uppercase">เป้าหมายงานเสร็จ</span><span class="text-sm font-black text-purple-900">${config.target}</span></div></div>`;
+        }
+
+        // ฟังก์ชัน Export Excel
+        function exportToExcel() {
+            if (filteredDataForExport.length === 0) {
+                alert("ไม่มีข้อมูลที่จะส่งออก");
+                return;
+            }
+
+            // เตรียมข้อมูลสำหรับ Excel
+            const excelData = filteredDataForExport.map(item => {
+                const aojName = aojList.find(a => a.code === item.peaCode)?.name || item.peaCode;
+                return {
+                    "WBS": item.wbs,
+                    "หน่วยงาน": aojName,
+                    "ชื่องาน": item.jobName,
+                    "สถานะงานก่อสร้าง": item.rawStatus,
+                    "สถานะสรุป": item.isCompleted ? "เสร็จสิ้น" : "อยู่ระหว่างดำเนินการ"
+                };
+            });
+
+            // สร้าง Workbook
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Construction_Data");
+
+            // ตั้งชื่อไฟล์: PEA_Data_[Tab]_[Date].xlsx
+            const dateStr = new Date().toISOString().slice(0,10);
+            const fileName = `PEA_Data_${currentTab}_${dateStr}.xlsx`;
+
+            // ดาวน์โหลดไฟล์
+            XLSX.writeFile(workbook, fileName);
+        }
+
+        function renderOverview() {
+            const projects = ['HK', 'IQ', 'JL'];
+            const summary = {};
+            const aojStats = {};
+            projects.forEach(p => {
+                const total = globalData[p].length;
+                const done = globalData[p].filter(i => i.isCompleted).length;
+                const perc = total > 0 ? (done / total * 100).toFixed(2) : 0;
+                summary[p] = { total, done, perc };
+                document.getElementById(`ovPerc-${p}`).innerText = perc + '%';
+                document.getElementById(`ovRatio-${p}`).innerText = `${done} / ${total}`;
+                document.getElementById(`ovBar-${p}`).style.width = perc + '%';
+                globalData[p].forEach(item => {
+                    if (!aojStats[item.peaCode]) aojStats[item.peaCode] = { total: 0, done: 0 };
+                    aojStats[item.peaCode].total++;
+                    if (item.isCompleted) aojStats[item.peaCode].done++;
+                });
+            });
+
+            const sortedAojCodes = Object.keys(aojStats).sort((a, b) => (aojStats[b].done / aojStats[b].total) - (aojStats[a].done / aojStats[a].total));
+            document.getElementById('ovAojRanking').innerHTML = sortedAojCodes.map(code => {
+                const name = aojList.find(a => a.code === code)?.name || code;
+                const stats = aojStats[code];
+                return `<tr class="hover:bg-gray-50"><td class="py-3 font-bold text-gray-700">${name}</td><td class="py-3 text-gray-500">${stats.total}</td><td class="py-3 text-green-600 font-bold">${stats.done}</td><td class="py-3 text-right font-black text-purple-700">${(stats.done / stats.total * 100).toFixed(1)}%</td></tr>`;
+            }).join('');
+
+            const ctx = document.getElementById('ovComparisonChart').getContext('2d');
+            if (ovChartInstance) ovChartInstance.destroy();
+            ovChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['ปี 2567 (HK)', 'ปี 2568 (IQ)', 'ปี 2569 (JL)'],
+                    datasets: [
+                        { label: 'เสร็จสิ้น', data: projects.map(p => summary[p].done), backgroundColor: '#10B981', borderRadius: 8 },
+                        { label: 'รอดำเนินการ', data: projects.map(p => summary[p].total - summary[p].done), backgroundColor: '#E5E7EB', borderRadius: 8 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+            });
+        }
+
+        function updateChart(done, working) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['เสร็จสิ้น', 'ดำเนินการ'],
+                    datasets: [{ data: [done, working], backgroundColor: ['#10B981', '#FF8500'], borderWidth: 5, borderColor: '#ffffff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%' }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderDashboard);
+        window.onload = loadDashboardData;
+    </script>
+</body>
+</html>
