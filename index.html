@@ -11,10 +11,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
         
         :root {
-            --pea-purple: #7B2CBF;
-            --pea-purple-dark: #5A189A;
-            --pea-orange: #FF8500;
-            --pea-bg: #F8F9FA;
+            /* Pantone 7650 C: R=116, G=4, B=95 */
+            --pea-purple: rgb(116, 4, 95);
+            --pea-purple-dark: rgb(90, 3, 74);
+            /* Pantone 1245 C: R=199, G=145, B=27 */
+            --pea-orange: rgb(199, 145, 27);
+            --pea-bg: #FDFCFD;
             --sidebar-width: 280px;
         }
 
@@ -23,7 +25,6 @@
             background-color: var(--pea-bg); 
             color: #333;
             overflow-x: hidden;
-            display: flex;
         }
 
         .pea-gradient {
@@ -40,7 +41,7 @@
             border-bottom: 4px solid var(--pea-orange); 
             color: var(--pea-purple); 
             font-weight: 700; 
-            background-color: rgba(123, 44, 191, 0.05);
+            background-color: rgba(116, 4, 95, 0.05);
         }
 
         /* Sidebar Toggle Mechanics */
@@ -55,42 +56,27 @@
         }
 
         main {
-            flex: 1;
-            margin-left: var(--sidebar-width);
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             min-height: 100vh;
         }
 
-        body.sidebar-closed #sidebar {
-            transform: translateX(-100%);
+        body.sidebar-open main {
+            margin-left: var(--sidebar-width);
         }
 
-        body.sidebar-closed main {
-            margin-left: 0;
+        body:not(.sidebar-open) #sidebar {
+            transform: translateX(-100%);
         }
 
         @media (max-width: 1024px) {
             main { margin-left: 0 !important; }
-            #sidebar { transform: translateX(-100%); }
-            #sidebar.open { transform: translateX(0); }
+            body.sidebar-open #sidebar { transform: translateX(0); }
         }
 
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-
-        /* External Frame Styling */
+        /* External Frame Container */
         #externalFrameWrapper {
             width: 100%;
-            height: calc(100vh - 120px);
+            height: calc(100vh - 140px);
             border-radius: 1rem;
             overflow: hidden;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -99,7 +85,7 @@
         }
     </style>
 </head>
-<body class="">
+<body class="sidebar-open">
 
     <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
@@ -107,7 +93,7 @@
     <aside id="sidebar" class="pea-gradient text-white flex flex-col shadow-2xl">
         <div class="p-6 flex items-center justify-between border-b border-white/10">
             <div class="flex items-center gap-3">
-                <div class="bg-white p-2 rounded-lg text-purple-700 font-bold text-xl shadow-md">PEA</div>
+                <div class="bg-white p-2 rounded-lg text-[rgb(116,4,95)] font-bold text-xl shadow-md">PEA</div>
                 <div>
                     <h2 class="font-bold text-lg leading-tight">Construction</h2>
                     <p class="text-[10px] text-purple-200 opacity-80 uppercase tracking-tighter">Monitoring System</p>
@@ -148,24 +134,22 @@
             </button>
         </nav>
 
-        <div class="p-6 border-t border-white/10 text-[11px] text-white/70 space-y-1">
+        <div class="p-6 border-t border-white/10 text-[11px] text-white/70 space-y-1 mt-auto">
             <div class="font-bold text-white">แผนกปรับปรุงระบบไฟฟ้า</div>
             <div>กองวิศวกรรมและวางแผน</div>
+            <div>โทร 10120, 10121, 10122</div>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="bg-[#F8F9FA]">
+    <main class="bg-[#FDFCFD]">
         <div class="p-4 md:p-8 max-w-[1600px] mx-auto">
             
-            <!-- Header Common to all pages -->
+            <!-- Header -->
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
                 <div class="flex items-center gap-4">
-                    <!-- Slide bar Toggle Button -->
-                    <button onclick="toggleSidebar()" class="p-2.5 bg-white border border-gray-200 rounded-xl text-purple-700 shadow-sm hover:bg-purple-50 transition active:scale-95">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-                        </svg>
+                    <button onclick="toggleSidebar()" class="p-2.5 bg-white border border-gray-200 rounded-xl text-[rgb(116,4,95)] shadow-sm hover:bg-purple-50 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                     </button>
                     <div>
                         <h1 id="pageTitle" class="text-2xl font-bold text-gray-800 tracking-tight">สถานะงาน</h1>
@@ -174,58 +158,55 @@
                 </div>
                 <div id="headerActions" class="text-right flex flex-col items-end w-full md:w-auto">
                      <div id="lastUpdate" class="text-[10px] italic text-gray-400 font-medium bg-white px-3 py-1 rounded-full border mb-2">กำลังโหลด...</div>
-                     <button onclick="loadDashboardData()" class="text-[10px] bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition shadow-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                     <button onclick="loadDashboardData()" class="text-[10px] bg-[rgb(116,4,95)] hover:bg-[rgb(90,3,74)] text-white px-4 py-2 rounded-lg transition shadow-sm font-bold uppercase tracking-wider flex items-center gap-2">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                         รีเฟรชข้อมูล
                     </button>
                 </div>
             </div>
 
-            <!-- Dashboard Data View (Visible for Page 1, 2, 3) -->
+            <!-- Dashboard Content Container (Visible for 1, 2, 3) -->
             <div id="dashboard-container">
                 <div id="tabContainer" class="flex flex-wrap bg-white rounded-xl shadow-sm mb-6 p-1 gap-1 border border-gray-200"></div>
 
                 <!-- Stats Cards -->
                 <div id="standardStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-gray-300 card-hover">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-gray-300">
                         <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">งานทั้งหมด</p>
                         <div class="flex items-baseline gap-1"><span id="statTotal" class="text-2xl font-black text-gray-700">0</span><span class="text-[10px] text-gray-400">รายการ</span></div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-500 card-hover">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-500">
                         <p class="text-[10px] font-bold text-green-600 uppercase mb-1">เสร็จสิ้น (F4, E2)</p>
                         <div class="flex items-baseline gap-1"><span id="statCompleted" class="text-2xl font-black text-green-600">0</span><span class="text-[10px] text-gray-400">รายการ</span></div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-orange-500 card-hover">
-                        <p class="text-[10px] font-bold text-orange-600 uppercase mb-1">ดำเนินการ</p>
-                        <div class="flex items-baseline gap-1"><span id="statOngoing" class="text-2xl font-black text-orange-600">0</span><span class="text-[10px] text-gray-400">รายการ</span></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-[rgb(199,145,27)]">
+                        <p class="text-[10px] font-bold text-[rgb(199,145,27)] uppercase mb-1">ดำเนินการ</p>
+                        <div class="flex items-baseline gap-1"><span id="statOngoing" class="text-2xl font-black text-[rgb(199,145,27)]">0</span><span class="text-[10px] text-gray-400">รายการ</span></div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-purple-600 card-hover">
-                        <p class="text-[10px] font-bold text-purple-600 uppercase mb-1">ความสำเร็จ</p>
-                        <span id="statPercent" class="text-2xl font-black text-purple-600">0.00%</span>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-[rgb(116,4,95)]">
+                        <p class="text-[10px] font-bold text-[rgb(116,4,95)] uppercase mb-1">ความสำเร็จ</p>
+                        <span id="statPercent" class="text-2xl font-black text-[rgb(116,4,95)]">0.00%</span>
                     </div>
                 </div>
 
-                <!-- Main View Area -->
                 <div id="mainView" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div id="tableViewWrapper" class="lg:col-span-8 bg-white rounded-2xl shadow-sm border overflow-hidden">
                         <div class="p-5 border-b bg-gray-50/50 flex flex-wrap items-center justify-between gap-3">
                             <h2 class="font-bold text-gray-700 flex items-center gap-2">
-                                <span id="viewColor" class="w-1.5 h-5 bg-orange-500 rounded-full"></span>
-                                <span id="viewHeaderLabel">รายการโครงการ</span> <span id="tabLabel" class="text-purple-700">-</span>
+                                <span id="viewColor" class="w-1.5 h-5 bg-[rgb(199,145,27)] rounded-full"></span>
+                                <span id="viewHeaderLabel">รายการโครงการ</span> <span id="tabLabel" class="text-[rgb(116,4,95)]">-</span>
                             </h2>
                             <div class="flex flex-wrap items-center gap-2">
-                                <div id="filterGroup" class="flex gap-2">
-                                    <select id="aojFilter" onchange="applyFilters()" class="text-xs p-2 border rounded-lg outline-none bg-white">
-                                        <option value="">การไฟฟ้า: ทั้งหมด</option>
-                                    </select>
-                                    <select id="statusFilter" onchange="applyFilters()" class="text-xs p-2 border rounded-lg outline-none bg-white">
-                                        <option value="all">สถานะ: ทั้งหมด</option>
-                                        <option value="done">เสร็จสิ้น (F4, E2)</option>
-                                        <option value="ongoing">ดำเนินการอยู่</option>
-                                    </select>
-                                </div>
+                                <select id="aojFilter" onchange="applyFilters()" class="text-xs p-2 border rounded-lg outline-none bg-white">
+                                    <option value="">การไฟฟ้า: ทั้งหมด</option>
+                                </select>
+                                <select id="statusFilter" onchange="applyFilters()" class="text-xs p-2 border rounded-lg outline-none bg-white">
+                                    <option value="all">สถานะ: ทั้งหมด</option>
+                                    <option value="done">เสร็จสิ้น (F4, E2)</option>
+                                    <option value="ongoing">ดำเนินการอยู่</option>
+                                </select>
                                 <input type="text" id="searchInput" placeholder="ค้นหา..." class="text-xs p-2 border rounded-lg outline-none w-32 md:w-48 bg-white">
-                                <button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition flex items-center gap-2 shadow-sm">
+                                <button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition flex items-center gap-2">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     EXCEL
                                 </button>
@@ -237,7 +218,7 @@
                                 <tbody id="tableBody" class="divide-y divide-gray-50 text-xs"></tbody>
                             </table>
                             <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-20">
-                                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mb-2"></div>
+                                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[rgb(116,4,95)] mb-2"></div>
                                 <p class="text-xs text-gray-500 font-bold">กำลังดึงข้อมูล...</p>
                             </div>
                         </div>
@@ -245,17 +226,11 @@
                     
                     <div id="rightWidgetArea" class="lg:col-span-4 space-y-6">
                         <div id="chartWidget" class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h3 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
-                                สัดส่วนสถานะงาน
-                            </h3>
+                            <h3 class="text-sm font-bold text-gray-800 mb-4">สัดส่วนสถานะงาน</h3>
                             <div class="h-[240px]"><canvas id="statusChart"></canvas></div>
                         </div>
                         <div id="targetWidget" class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h3 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
-                                ข้อมูลเป้าหมาย
-                            </h3>
+                            <h3 class="text-sm font-bold text-gray-800 mb-3">ข้อมูลเป้าหมาย</h3>
                             <div id="wbsInfo" class="space-y-2"></div>
                         </div>
                     </div>
@@ -265,15 +240,15 @@
                 <div id="overviewView" class="hidden space-y-6">
                     <div id="overviewCards" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border h-[380px] relative">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border h-[380px]">
                             <h3 class="text-sm font-bold mb-4">เปรียบเทียบผลงานสะสมรายปี (รายการ)</h3>
                             <canvas id="ovComparisonChart"></canvas>
                         </div>
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <h3 class="text-sm font-bold mb-4">อันดับผลงานแยกตามหน่วยงาน (รวม)</h3>
-                            <div class="overflow-y-auto max-h-[280px] pr-2">
+                            <div class="overflow-y-auto max-h-[280px]">
                                 <table class="w-full text-xs">
-                                    <thead class="sticky top-0 bg-white shadow-sm font-bold text-gray-400 uppercase text-[10px] border-b">
+                                    <thead class="sticky top-0 bg-white border-b font-bold text-gray-400 uppercase text-[10px]">
                                         <tr class="text-left"><th class="py-2">หน่วยงาน</th><th class="py-2">ทั้งหมด</th><th class="py-2">สำเร็จ</th><th class="py-2 text-right">ร้อยละ</th></tr>
                                     </thead>
                                     <tbody id="ovAojRanking" class="divide-y divide-gray-50"></tbody>
@@ -284,16 +259,13 @@
                 </div>
             </div>
 
-            <!-- External Link View (Visible for Page 4) -->
+            <!-- External Iframe View (Visible for 4) -->
             <div id="external-container" class="hidden">
                 <div id="externalFrameWrapper">
                     <iframe id="externalFrame" src="" class="w-full h-full border-none"></iframe>
                 </div>
             </div>
 
-            <div id="simple-placeholder" class="hidden text-center py-20 bg-white rounded-2xl border border-dashed">
-                <h2 class="text-2xl font-bold text-gray-400">อยู่ระหว่างพัฒนาส่วนแสดงผล</h2>
-            </div>
         </div>
     </main>
 
@@ -341,8 +313,8 @@
                     'M4': { gid: '660535995', label: 'ปี 2569 (M4)', sub: 'รายการพัสดุ', color: 'purple' }
                 }
             },
-            4: { 
-                title: "สถานะขออนุมัติเปิดงาน", 
+            4: {
+                title: "สถานะขออนุมัติเปิดงาน",
                 type: 'external',
                 url: 'https://script.google.com/macros/s/AKfycbzvQRDSWnOSbjtyOm1YZn8TF-2YGdjJMFOtj84fV3xBzLsrHtjqQr4ex9IQdDLoqoj6UQ/exec'
             }
@@ -359,12 +331,10 @@
         let ovChartInstance = null;
 
         function toggleSidebar() {
-            if (window.innerWidth >= 1024) {
-                document.body.classList.toggle('sidebar-closed');
-            } else {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('open');
-                document.getElementById('overlay').classList.toggle('hidden');
+            document.body.classList.toggle('sidebar-open');
+            const overlay = document.getElementById('overlay');
+            if (window.innerWidth < 1024) {
+                overlay.classList.toggle('hidden');
             }
         }
 
@@ -379,20 +349,16 @@
         function switchMainPage(pageId) {
             currentPage = pageId;
             document.querySelectorAll('aside button').forEach(btn => btn.classList.remove('sidebar-item-active'));
-            const navId = 'main-nav-' + pageId.toString().replace('.', '-');
-            const activeNav = document.getElementById(navId);
+            const activeNav = document.getElementById('main-nav-' + pageId.toString().replace('.', '-'));
             if (activeNav) activeNav.classList.add('sidebar-item-active');
 
             const dashboard = document.getElementById('dashboard-container');
             const external = document.getElementById('external-container');
-            const placeholder = document.getElementById('simple-placeholder');
             const headerActions = document.getElementById('headerActions');
             const conf = CONFIG[pageId];
 
-            // Reset visibility
             dashboard.classList.add('hidden');
             external.classList.add('hidden');
-            placeholder.classList.add('hidden');
             headerActions.classList.remove('hidden');
 
             if (conf) {
@@ -400,26 +366,18 @@
                 
                 if (conf.type === 'external') {
                     external.classList.remove('hidden');
-                    headerActions.classList.add('hidden'); // Hide update buttons for external links
+                    headerActions.classList.add('hidden');
                     const frame = document.getElementById('externalFrame');
                     if (frame.src !== conf.url) frame.src = conf.url;
-                } else if (conf.tabs && conf.tabs.length > 0) {
+                } else {
                     dashboard.classList.remove('hidden');
                     adjustLayoutForType(conf.type);
-                    initDashboardUI(pageId);
+                    initTabs(pageId);
                     currentSubTab = (pageId === 1 || pageId === 2) ? 'OVERVIEW' : conf.tabs[0];
                     switchSubTab(currentSubTab);
-                } else {
-                    placeholder.classList.remove('hidden');
                 }
-            } else {
-                placeholder.classList.remove('hidden');
             }
-            
-            if (window.innerWidth < 1024) {
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar.classList.contains('open')) toggleSidebar();
-            }
+            if (window.innerWidth < 1024) toggleSidebar();
         }
 
         function adjustLayoutForType(type) {
@@ -427,43 +385,37 @@
             const rightArea = document.getElementById('rightWidgetArea');
             const tableWrapper = document.getElementById('tableViewWrapper');
             const statusFilter = document.getElementById('statusFilter');
-            const viewHeaderLabel = document.getElementById('viewHeaderLabel');
-            const viewColor = document.getElementById('viewColor');
 
             if (type === 'material') {
                 stats.classList.add('hidden');
                 rightArea.classList.add('hidden');
                 tableWrapper.classList.replace('lg:col-span-8', 'lg:col-span-12');
-                if (statusFilter) statusFilter.classList.add('hidden');
-                viewHeaderLabel.innerText = "ตารางข้อมูลพัสดุ/เอกสาร";
-                viewColor.className = "w-1.5 h-5 bg-purple-600 rounded-full";
+                statusFilter.classList.add('hidden');
+                document.getElementById('viewHeaderLabel').innerText = "รายการพัสดุ";
             } else {
                 stats.classList.remove('hidden');
                 rightArea.classList.remove('hidden');
                 tableWrapper.classList.replace('lg:col-span-12', 'lg:col-span-8');
-                if (statusFilter) statusFilter.classList.remove('hidden');
-                viewHeaderLabel.innerText = "รายการโครงการ";
-                viewColor.className = "w-1.5 h-5 bg-orange-500 rounded-full";
+                statusFilter.classList.remove('hidden');
+                document.getElementById('viewHeaderLabel').innerText = "รายการโครงการ";
             }
         }
 
-        function initDashboardUI(pageId) {
+        function initTabs(pageId) {
             const conf = CONFIG[pageId];
             const tabContainer = document.getElementById('tabContainer');
             let html = '';
-            
             if (pageId === 1 || pageId === 2) {
                 html += `<button onclick="switchSubTab('OVERVIEW')" id="btn-OVERVIEW" class="flex-1 min-w-[120px] py-3 text-center rounded-lg hover:bg-gray-50 transition text-gray-500">
                     <span class="block text-lg font-black tracking-tight">SUMMARY</span>
-                    <span class="block text-[10px] font-bold text-purple-600 tracking-tighter">ภาพรวมทุกปี</span>
+                    <span class="block text-[10px] font-bold text-[rgb(116,4,95)] uppercase">ภาพรวม</span>
                 </button>`;
             }
-            
-            conf.tabs.forEach(tabKey => {
-                const det = conf.tabDetails[tabKey];
-                html += `<button onclick="switchSubTab('${tabKey}')" id="btn-${tabKey}" class="flex-1 min-w-[100px] py-3 text-center rounded-lg hover:bg-gray-50 transition text-gray-500">
-                    <span class="block text-lg font-black tracking-tight">${tabKey}</span>
-                    <span class="block text-[10px] font-bold text-${det.color}-600 tracking-tighter">${det.sub}</span>
+            conf.tabs.forEach(tab => {
+                const det = conf.tabDetails[tab];
+                html += `<button onclick="switchSubTab('${tab}')" id="btn-${tab}" class="flex-1 min-w-[100px] py-3 text-center rounded-lg hover:bg-gray-50 transition text-gray-500">
+                    <span class="block text-lg font-black tracking-tight">${tab}</span>
+                    <span class="block text-[10px] font-bold text-gray-400 uppercase">${det.sub}</span>
                 </button>`;
             });
             tabContainer.innerHTML = html;
@@ -471,8 +423,10 @@
 
         function switchSubTab(tab) {
             currentSubTab = tab;
-            updateTabUI();
-            
+            document.querySelectorAll('#tabContainer button').forEach(btn => btn.classList.remove('tab-active'));
+            const activeBtn = document.getElementById('btn-' + tab);
+            if (activeBtn) activeBtn.classList.add('tab-active');
+
             const mainView = document.getElementById('mainView');
             const overview = document.getElementById('overviewView');
             const stats = document.getElementById('standardStats');
@@ -491,45 +445,31 @@
             loadDashboardData();
         }
 
-        function updateTabUI() {
-            document.querySelectorAll('#tabContainer button').forEach(btn => {
-                btn.classList.remove('tab-active');
-                btn.classList.add('text-gray-500');
-            });
-            const activeBtn = document.getElementById('btn-' + currentSubTab);
-            if (activeBtn) {
-                activeBtn.classList.add('tab-active');
-                activeBtn.classList.remove('text-gray-500');
-            }
-        }
-
-        function splitCsvLine(line) {
-            const result = [];
-            let current = "";
-            let inQuotes = false;
-            for (let char of line) {
-                if (char === '"') inQuotes = !inQuotes;
-                else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ""; }
-                else current += char;
-            }
-            result.push(current.trim());
-            return result.map(val => val.replace(/^"|"$/g, '').trim());
-        }
-
-        async function fetchAOJData() {
-            const sheetId = '177jXMlSiBORg0BupwCuMZ7dxQ3zi-HtLfQ4RgwE-77c'; 
-            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=AOJ`;
+        async function fetchAOJ() {
+            const url = `https://docs.google.com/spreadsheets/d/177jXMlSiBORg0BupwCuMZ7dxQ3zi-HtLfQ4RgwE-77c/gviz/tq?tqx=out:csv&sheet=AOJ`;
             try {
-                const response = await fetch(url);
-                const csvData = await response.text();
-                const lines = csvData.split(/\r?\n/);
+                const r = await fetch(url);
+                const csv = await r.text();
+                const lines = csv.split(/\r?\n/);
                 const list = [];
                 for (let i = 1; i < lines.length; i++) {
-                    const cells = splitCsvLine(lines[i]);
-                    if (cells[1] && cells[2]) list.push({ code: cells[1].trim(), name: cells[2].trim() });
+                    const c = splitLine(lines[i]);
+                    if (c[1] && c[2]) list.push({ code: c[1].trim(), name: c[2].trim() });
                 }
                 return list;
             } catch (e) { return []; }
+        }
+
+        function splitLine(l) {
+            const res = [];
+            let cur = "", inQ = false;
+            for (let ch of l) {
+                if (ch === '"') inQ = !inQ;
+                else if (ch === ',' && !inQ) { res.push(cur.trim()); cur = ""; }
+                else cur += ch;
+            }
+            res.push(cur.trim());
+            return res.map(v => v.replace(/^"|"$/g, '').trim());
         }
 
         async function loadDashboardData() {
@@ -539,218 +479,182 @@
             document.getElementById('loadingOverlay').classList.remove('hidden');
 
             if (aojList.length === 0) {
-                aojList = await fetchAOJData();
-                populateAojFilter();
+                aojList = await fetchAOJ();
+                const filter = document.getElementById('aojFilter');
+                filter.innerHTML = '<option value="">การไฟฟ้า: ทั้งหมด</option>' + 
+                    aojList.map(a => `<option value="${a.code}">${a.name}</option>`).join('');
             }
 
             if (currentSubTab === 'OVERVIEW') {
-                const promises = conf.tabs.map(t => fetchData(currentPage, t));
-                const results = await Promise.all(promises);
-                conf.tabs.forEach((t, idx) => { globalData[t] = results[idx]; });
+                const ps = conf.tabs.map(t => fetchData(currentPage, t));
+                const rs = await Promise.all(ps);
+                conf.tabs.forEach((t, i) => { globalData[t] = rs[i]; });
                 renderOverview();
             } else {
                 const det = conf.tabDetails[currentSubTab];
-                const cacheBuster = new Date().getTime();
-                const url = `https://docs.google.com/spreadsheets/d/${conf.sheetId}/export?format=csv&gid=${det.gid}&t=${cacheBuster}`;
-                
+                const url = `https://docs.google.com/spreadsheets/d/${conf.sheetId}/export?format=csv&gid=${det.gid}&t=${Date.now()}`;
                 try {
-                    const response = await fetch(url);
-                    const csvData = await response.text();
-                    
+                    const r = await fetch(url);
+                    const csv = await r.text();
                     if (conf.type === 'material') {
-                        const lines = csvData.split(/\r?\n/).filter(l => l.trim() !== "");
-                        if (lines.length > 0) {
-                            materialHeaders = splitCsvLine(lines[0]);
-                            rawMaterialData = lines.slice(1).map(l => splitCsvLine(l));
-                            renderMaterialTable();
-                        }
+                        const lines = csv.split(/\r?\n/).filter(l => l.trim());
+                        materialHeaders = splitLine(lines[0]);
+                        rawMaterialData = lines.slice(1).map(l => splitLine(l));
+                        renderMaterial();
                     } else {
-                        allData = parseConstructionCSV(csvData, det.lv);
-                        renderDashboard();
+                        allData = parseCSV(csv, det.lv);
+                        renderConstruction();
                     }
                 } catch (e) { console.error(e); }
             }
-
             document.getElementById('loadingOverlay').classList.add('hidden');
             document.getElementById('lastUpdate').innerText = 'อัปเดตเมื่อ: ' + new Date().toLocaleTimeString('th-TH');
         }
 
-        function parseConstructionCSV(csv, targetLv) {
+        function parseCSV(csv, lv) {
             const lines = csv.split(/\r?\n/);
-            const result = [];
+            const res = [];
             for (let i = 1; i < lines.length; i++) {
-                const cells = splitCsvLine(lines[i]);
-                if (cells.length < 4 || (cells[3] || '').toString().trim() !== targetLv) continue;
-                
-                const wbs = (cells[0] || '').trim();
-                const desc = (cells[1] || '').trim();
-                const statusStr = (cells[2] || '').trim();
-                const lastTwo = statusStr.slice(-2).toUpperCase();
-                const isDone = (lastTwo === 'F4' || lastTwo === 'E2');
-                const peaCode = wbs.length >= 10 ? wbs.substring(7, 10) : "";
-                
-                result.push({
-                    wbs, peaCode, jobName: desc, rawStatus: statusStr,
-                    jobStatus: statusStr.length >= 6 ? statusStr.substring(0, 4) + " " + statusStr.slice(-2) : statusStr,
-                    isCompleted: isDone
+                const c = splitLine(lines[i]);
+                if (c.length < 4 || c[3] !== lv) continue;
+                const status = c[2].trim();
+                const last2 = status.slice(-2).toUpperCase();
+                res.push({
+                    wbs: c[0].trim(), jobName: c[1].trim(), rawStatus: status,
+                    peaCode: c[0].length >= 10 ? c[0].substring(7, 10) : "",
+                    isCompleted: last2 === 'F4' || last2 === 'E2'
                 });
             }
-            return result;
+            return res;
         }
 
-        function renderMaterialTable() {
-            const search = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-            const selectedAojCode = document.getElementById('aojFilter')?.value || '';
-            const headerRow = document.getElementById('tableHeader');
-            const tableBody = document.getElementById('tableBody');
+        async function fetchData(pId, tK) {
+            const c = CONFIG[pId];
+            const d = c.tabDetails[tK];
+            const url = `https://docs.google.com/spreadsheets/d/${c.sheetId}/export?format=csv&gid=${d.gid}`;
+            try {
+                const r = await fetch(url);
+                const csv = await r.text();
+                return parseCSV(csv, d.lv);
+            } catch (e) { return []; }
+        }
 
-            headerRow.innerHTML = `<tr>${materialHeaders.map(h => `<th class="px-4 py-4 whitespace-nowrap bg-gray-50 border-b font-bold">${h}</th>`).join('')}</tr>`;
+        function renderMaterial() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const aoj = document.getElementById('aojFilter').value;
+            const h = document.getElementById('tableHeader');
+            const b = document.getElementById('tableBody');
 
+            h.innerHTML = `<tr>${materialHeaders.map(text => `<th class="px-4 py-4 whitespace-nowrap bg-gray-50 border-b font-bold">${text}</th>`).join('')}</tr>`;
+            
             const filtered = rawMaterialData.filter(row => {
-                const mSearch = search === '' || row.some(cell => (cell || '').toString().toLowerCase().includes(search));
+                const mSearch = search === '' || row.some(v => v.toLowerCase().includes(search));
                 let mAoj = true;
-                if (selectedAojCode !== '') {
-                    const selName = aojList.find(a => a.code === selectedAojCode)?.name || "";
-                    mAoj = (row[1] || '').toString().includes(selName);
+                if (aoj !== '') {
+                    const name = aojList.find(a => a.code === aoj)?.name || "";
+                    mAoj = row[1].includes(name);
                 }
                 return mSearch && mAoj;
             });
 
-            tableBody.innerHTML = filtered.length === 0 ? 
-                `<tr><td colspan="${materialHeaders.length}" class="p-10 text-center text-gray-400">ไม่พบข้อมูล</td></tr>` :
-                filtered.map(row => `
-                    <tr class="hover:bg-purple-50 transition border-b border-gray-50">
-                        ${row.map(cell => {
-                            let cellVal = (cell || '').toString();
-                            let style = "px-4 py-3 text-gray-700";
-                            if (cellVal.includes("ขาด") || cellVal === "0") style += " text-red-500 font-bold";
-                            if (cellVal.includes("ครบ") || cellVal.includes("สำเร็จ")) style += " text-green-600 font-bold";
-                            return `<td class="${style}">${cellVal}</td>`;
-                        }).join('')}
-                    </tr>
-                `).join('');
+            b.innerHTML = filtered.map(row => `
+                <tr class="hover:bg-purple-50 transition border-b border-gray-50">
+                    ${row.map(v => {
+                        let style = "px-4 py-3";
+                        if (v.includes("ขาด") || v === "0") style += " text-red-500 font-bold";
+                        if (v.includes("ครบ") || v.includes("สำเร็จ")) style += " text-green-600 font-bold";
+                        return `<td class="${style}">${v}</td>`;
+                    }).join('')}
+                </tr>
+            `).join('');
         }
 
-        function renderDashboard() {
-            const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
-            const aoj = document.getElementById('aojFilter')?.value || '';
-            const status = document.getElementById('statusFilter')?.value || 'all';
+        function renderConstruction() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const aoj = document.getElementById('aojFilter').value;
+            const status = document.getElementById('statusFilter').value;
 
-            const filtered = allData.filter(item => {
-                const mSearch = item.wbs.toLowerCase().includes(search) || item.jobName.toLowerCase().includes(search);
-                const mAoj = aoj === '' || item.peaCode === aoj;
-                const mStatus = status === 'all' || (status === 'done' ? item.isCompleted : !item.isCompleted);
+            const filtered = allData.filter(i => {
+                const mSearch = i.wbs.toLowerCase().includes(search) || i.jobName.toLowerCase().includes(search);
+                const mAoj = aoj === '' || i.peaCode === aoj;
+                const mStatus = status === 'all' || (status === 'done' ? i.isCompleted : !i.isCompleted);
                 return mSearch && mAoj && mStatus;
             });
 
-            const doneCount = filtered.filter(i => i.isCompleted).length;
-            document.getElementById('statTotal').innerText = filtered.length.toLocaleString();
-            document.getElementById('statCompleted').innerText = doneCount.toLocaleString();
-            document.getElementById('statOngoing').innerText = (filtered.length - doneCount).toLocaleString();
-            document.getElementById('statPercent').innerText = (filtered.length > 0 ? (doneCount/filtered.length*100).toFixed(2) : "0.00") + '%';
+            const done = filtered.filter(i => i.isCompleted).length;
+            document.getElementById('statTotal').innerText = filtered.length;
+            document.getElementById('statCompleted').innerText = done;
+            document.getElementById('statOngoing').innerText = filtered.length - done;
+            document.getElementById('statPercent').innerText = (filtered.length > 0 ? (done/filtered.length*100).toFixed(2) : "0.00") + '%';
 
-            document.getElementById('tableHeader').innerHTML = `<tr><th class="px-6 py-4">WBS</th><th class="px-6 py-4">ชื่องาน</th><th class="px-6 py-4">สถานะงาน</th><th class="px-6 py-4 text-center">บทสรุป</th></tr>`;
+            document.getElementById('tableHeader').innerHTML = `<tr><th class="px-6 py-4">WBS</th><th class="px-6 py-4">ชื่องาน</th><th class="px-6 py-4">สถานะ</th><th class="px-6 py-4 text-center">บทสรุป</th></tr>`;
+            document.getElementById('tableBody').innerHTML = filtered.map(i => `
+                <tr class="hover:bg-purple-50 transition border-b border-gray-50">
+                    <td class="px-6 py-3 font-bold text-gray-700 font-mono text-[11px]">${i.wbs}</td>
+                    <td class="px-6 py-3 text-gray-800">${i.jobName}</td>
+                    <td class="px-6 py-3 font-mono text-gray-400">${i.rawStatus}</td>
+                    <td class="px-6 py-3 text-center">
+                        <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${i.isCompleted ? 'bg-green-100 text-green-700 border-green-200' : 'bg-orange-50 text-[rgb(199,145,27)] border-orange-200'}">
+                            ${i.isCompleted ? 'เสร็จสิ้น' : 'ดำเนินการ'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
 
-            document.getElementById('tableBody').innerHTML = filtered.length === 0 ? 
-                `<tr><td colspan="4" class="p-10 text-center text-gray-400">ไม่พบข้อมูล</td></tr>` :
-                filtered.map(item => `
-                    <tr class="hover:bg-purple-50 transition border-b border-gray-50">
-                        <td class="px-6 py-3 font-bold text-gray-700 font-mono text-[11px]">${item.wbs}</td>
-                        <td class="px-6 py-3 text-gray-800">${item.jobName}</td>
-                        <td class="px-6 py-3 font-mono text-gray-500">${item.jobStatus}</td>
-                        <td class="px-6 py-3 text-center">
-                            <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border shadow-sm ${item.isCompleted ? 'bg-green-100 text-green-700 border-green-200' : 'bg-orange-50 text-orange-700 border-orange-200'}">
-                                ${item.isCompleted ? 'เสร็จสิ้น' : 'ดำเนินการ'}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
-
-            updateChart(doneCount, filtered.length - doneCount);
-            
-            const det = CONFIG[currentPage].tabDetails ? CONFIG[currentPage].tabDetails[currentSubTab] : null;
-            document.getElementById('wbsInfo').innerHTML = (det && det.target) ? 
-                `<div class="p-4 bg-purple-50 rounded-xl border border-purple-100"><div class="text-[10px] uppercase font-bold text-purple-400 mb-1">เป้าหมาย</div><div class="text-xl font-black text-purple-900">${det.target}</div></div>` :
-                `<div class="p-4 bg-gray-50 rounded-xl italic text-gray-400 text-xs">ไม่มีระบุเป้าหมาย</div>`;
-        }
-
-        async function fetchData(pageId, tabKey) {
-            const conf = CONFIG[pageId];
-            const det = conf.tabDetails[tabKey];
-            const url = `https://docs.google.com/spreadsheets/d/${conf.sheetId}/export?format=csv&gid=${det.gid}`;
-            try {
-                const response = await fetch(url);
-                const csvData = await response.text();
-                return parseConstructionCSV(csvData, det.lv);
-            } catch (e) { return []; }
-        }
-
-        function populateAojFilter() {
-            const options = aojList.map(a => `<option value="${a.code}">${a.name}</option>`).join('');
-            document.getElementById('aojFilter').innerHTML = '<option value="">การไฟฟ้า: ทั้งหมด</option>' + options;
-        }
-
-        function applyFilters() {
-            if (CONFIG[currentPage].type === 'material') renderMaterialTable();
-            else renderDashboard();
-        }
-
-        function updateChart(done, working) {
             if (chartInstance) chartInstance.destroy();
-            const ctx = document.getElementById('statusChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
+            chartInstance = new Chart(document.getElementById('statusChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['เสร็จสิ้น', 'ดำเนินการ'],
-                    datasets: [{ data: [done, working], backgroundColor: ['#10B981', '#FF8500'], borderWidth: 0 }]
+                    datasets: [{ data: [done, filtered.length - done], backgroundColor: ['#10B981', 'rgb(199,145,27)'], borderWidth: 0 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, family: 'Sarabun' } } } } }
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
             });
+            
+            const det = CONFIG[currentPage].tabDetails[currentSubTab];
+            document.getElementById('wbsInfo').innerHTML = `<div class="p-4 bg-purple-50 rounded-xl border border-purple-100"><div class="text-[10px] uppercase font-bold text-purple-400 mb-1">เป้าหมาย</div><div class="text-xl font-black text-[rgb(116,4,95)]">${det.target}</div></div>`;
         }
 
         function renderOverview() {
             const conf = CONFIG[currentPage];
             const summary = {};
             const aojStats = {};
-            let cardsHtml = '';
+            let cards = '';
             
-            conf.tabs.forEach(p => {
-                const det = conf.tabDetails[p];
-                const data = globalData[p] || [];
-                const total = data.length;
+            conf.tabs.forEach(t => {
+                const data = globalData[t] || [];
                 const done = data.filter(i => i.isCompleted).length;
-                const perc = total > 0 ? (done / total * 100).toFixed(2) : 0;
-                summary[p] = { total, done, perc };
+                const perc = data.length > 0 ? (done / data.length * 100).toFixed(2) : 0;
+                summary[t] = { total: data.length, done, perc };
 
-                cardsHtml += `<div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 ${det.color === 'orange' ? 'border-orange-500' : 'border-blue-500'} card-hover">
-                    <h3 class="text-sm font-bold text-gray-600">${det.label}</h3>
-                    <div class="mt-4 flex justify-between items-end"><p class="text-3xl font-black text-gray-800">${perc}%</p><p class="text-[10px] text-gray-400 font-bold">${done}/${total}</p></div>
-                    <div class="w-full bg-gray-100 h-2 rounded-full mt-3 overflow-hidden"><div class="bg-${det.color === 'blue' ? 'blue-500' : 'orange-500'} h-full" style="width: ${perc}%"></div></div>
+                cards += `<div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-[rgb(116,4,95)]">
+                    <h3 class="text-sm font-bold text-gray-600">${conf.tabDetails[t].label}</h3>
+                    <div class="mt-4 flex justify-between items-end"><p class="text-3xl font-black text-gray-800">${perc}%</p><p class="text-[10px] text-gray-400 font-bold">${done}/${data.length}</p></div>
+                    <div class="w-full bg-gray-100 h-2 rounded-full mt-3 overflow-hidden"><div class="bg-[rgb(116,4,95)] h-full" style="width: ${perc}%"></div></div>
                 </div>`;
 
-                data.forEach(item => {
-                    if (!aojStats[item.peaCode]) aojStats[item.peaCode] = { total: 0, done: 0 };
-                    aojStats[item.peaCode].total++;
-                    if (item.isCompleted) aojStats[item.peaCode].done++;
+                data.forEach(i => {
+                    if (!aojStats[i.peaCode]) aojStats[i.peaCode] = { total: 0, done: 0 };
+                    aojStats[i.peaCode].total++;
+                    if (i.isCompleted) aojStats[i.peaCode].done++;
                 });
             });
-            document.getElementById('overviewCards').innerHTML = cardsHtml;
+            document.getElementById('overviewCards').innerHTML = cards;
 
-            const sortedAoj = Object.keys(aojStats).sort((a,b) => (aojStats[b].done/aojStats[b].total) - (aojStats[a].done/aojStats[a].total));
-            document.getElementById('ovAojRanking').innerHTML = sortedAoj.map(code => {
+            const sorted = Object.keys(aojStats).sort((a,b) => (aojStats[b].done/aojStats[b].total) - (aojStats[a].done/aojStats[a].total));
+            document.getElementById('ovAojRanking').innerHTML = sorted.map(code => {
                 const s = aojStats[code];
-                const name = aojList.find(a => a.code === code)?.name || code;
-                return `<tr class="border-b border-gray-50 hover:bg-gray-50"><td class="py-3 font-bold">${name}</td><td>${s.total}</td><td class="text-green-600">${s.done}</td><td class="text-right font-black text-purple-700">${(s.done/s.total*100).toFixed(1)}%</td></tr>`;
+                return `<tr class="border-b border-gray-50"><td class="py-3 font-bold">${aojList.find(a => a.code === code)?.name || code}</td><td>${s.total}</td><td class="text-green-600">${s.done}</td><td class="text-right font-black text-[rgb(116,4,95)]">${(s.done/s.total*100).toFixed(1)}%</td></tr>`;
             }).join('');
 
             if (ovChartInstance) ovChartInstance.destroy();
             ovChartInstance = new Chart(document.getElementById('ovComparisonChart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: conf.tabs.map(p => conf.tabDetails[p].label),
+                    labels: conf.tabs.map(t => conf.tabDetails[t].label),
                     datasets: [
-                        { label: 'เสร็จสิ้น', data: conf.tabs.map(p => summary[p].done), backgroundColor: '#10B981' },
-                        { label: 'ดำเนินการ', data: conf.tabs.map(p => summary[p].total - summary[p].done), backgroundColor: '#E5E7EB' }
+                        { label: 'เสร็จสิ้น', data: conf.tabs.map(t => summary[t].done), backgroundColor: '#10B981' },
+                        { label: 'รอดำเนินการ', data: conf.tabs.map(t => summary[t].total - summary[t].done), backgroundColor: '#E5E7EB' }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
@@ -758,22 +662,37 @@
         }
 
         function exportToExcel() {
-            const conf = CONFIG[currentPage];
-            if (conf.type === 'external') return;
-            
             let ws;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const aoj = document.getElementById('aojFilter').value;
+            const conf = CONFIG[currentPage];
+
             if (conf.type === 'material') {
-                ws = XLSX.utils.json_to_sheet(rawMaterialData.map(row => {
+                const exportData = rawMaterialData.map(row => {
                     let obj = {}; materialHeaders.forEach((h, i) => obj[h] = row[i]); return obj;
-                }));
+                });
+                ws = XLSX.utils.json_to_sheet(exportData);
             } else {
-                ws = XLSX.utils.json_to_sheet(allData.map(item => ({
-                    "WBS": item.wbs, "หน่วยงาน": aojList.find(a => a.code === item.peaCode)?.name || item.peaCode,
-                    "ชื่องาน": item.jobName, "สถานะ": item.rawStatus, "สรุป": item.isCompleted ? "เสร็จสิ้น" : "ดำเนินการ"
+                const status = document.getElementById('statusFilter').value;
+                const filtered = allData.filter(i => {
+                    const mSearch = i.wbs.toLowerCase().includes(search) || i.jobName.toLowerCase().includes(search);
+                    const mAoj = aoj === '' || i.peaCode === aoj;
+                    const mStatus = status === 'all' || (status === 'done' ? i.isCompleted : !i.isCompleted);
+                    return mSearch && mAoj && mStatus;
+                });
+                ws = XLSX.utils.json_to_sheet(filtered.map(i => ({
+                    "WBS": i.wbs, "หน่วยงาน": aojList.find(a => a.code === i.peaCode)?.name || i.peaCode,
+                    "ชื่องาน": i.jobName, "สถานะ": i.rawStatus, "สรุป": i.isCompleted ? "เสร็จสิ้น" : "อยู่ระหว่างดำเนินการ"
                 })));
             }
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
             XLSX.writeFile(wb, `PEA_Export_${currentSubTab}_${new Date().toLocaleDateString('th-TH').replace(/\//g, '-')}.xlsx`);
+        }
+
+        function applyFilters() {
+            if (CONFIG[currentPage].type === 'material') renderMaterial();
+            else renderConstruction();
         }
 
         document.getElementById('searchInput').addEventListener('input', applyFilters);
